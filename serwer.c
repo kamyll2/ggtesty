@@ -1,12 +1,4 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <string.h>
-#include <signal.h>
-#include <stdlib.h>
+#include "libs.h"
 
 void childend(int signo){
 wait(NULL);
@@ -66,6 +58,7 @@ while(1){
 		write(klidesk, "nie spamuj", 11);
 	}
 	else if(strcmp(buff, "exit")==0){
+		write(klidesk, "exit",100);
 		printf("bye bye\n");
 		break;
 		//close(klidesk);

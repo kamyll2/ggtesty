@@ -1,9 +1,4 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <stdio.h>
+#include "libs.h"
 
 int findnewline(char * buff, int size)
 {
@@ -60,12 +55,22 @@ int recsize = 0;
 }*/
 
 printf("login, m+wiadomosc, exit\n");
+
+
 char  msg[100];
+if(fork()==0)
+{
+while(strcmp(buff,"exit")!=0){
+read(desk,buff,100);
+printf("\n%s - tako rzecze serwer\n",buff);
+}
+exit(EXIT_SUCCESS);
+}
 while(strcmp(msg,"exit")!=0){
 scanf("%s",msg);
 write(desk,msg,100);
-read(desk, buff, 100);
-printf("%s - tako rzecze serwer\n",buff);
+//read(desk, buff, 100);
+//printf("%s - tako rzecze serwer\n",buff);
 
 }
 close(desk);
