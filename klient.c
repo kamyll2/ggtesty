@@ -49,9 +49,6 @@ int tempsize = 0;
 	//write(desk,sendbuff, 6);
 	printf("writen %d\n",tempsize);
 }*/
-	write(desk, sendbuff, size);
-char * recbuff;
-recbuff = "                    ";
 
 int recsize = 0;
 /*while(1)
@@ -61,15 +58,16 @@ int recsize = 0;
 	if(recsize<0){printf("recsize<0\n");break;}
 	printf("recwhile, %d\n",recsize);
 }*/
-read(desk, &buff, 30);
-printf("%s readed\n", buff);
-//write(1,&buff,recsize);
 
+printf("login, m+wiadomosc, exit\n");
 char  msg[100];
+while(strcmp(msg,"exit")!=0){
 scanf("%s",msg);
-write(desk,msg,255);
-printf("%s zioom\n",msg);
-printf("\n");
+write(desk,msg,100);
+read(desk, buff, 100);
+printf("%s - tako rzecze serwer\n",buff);
+
+}
 close(desk);
 
 }
