@@ -10,7 +10,8 @@
 #include <string.h>
 #include <signal.h>
 #include <stdlib.h>
-
-
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <stdbool.h>
 
 #endif

@@ -1,11 +1,28 @@
 #include "libs.h"
 
+struct desk_id{
+int desk;
+int id;
+};
+
 void childend(int signo){
 wait(NULL);
 }
 
 main(int argc, char* argv[])
 {
+const int shmkey = 4321;
+int shmid = shmget(shmkey, 10*sizeof(struct desk_id), IPC_CREAT|0600);
+
+struct desk_id * id_tab;
+id_tab = (struct desk_id *)shmat(shmid,NULL,0);
+int i;
+for (i=0;i<10;i++){
+id_tab[i].id = -1; id_tab[i].desk = -1;
+}
+int id_tab_pos=0;
+int id=0;
+
 int on=1;
 int desk=socket(PF_INET,SOCK_STREAM,0);
 setsockopt(desk,SOL_SOCKET,SO_REUSEADDR,(char*)&on,sizeof(on));
@@ -41,17 +58,35 @@ while(1){
 	int n = read(klidesk,&buff,100);
 	//write(1, &buff, n);
 	printf("%s", buff);
-	
+
 	printf("\n%d odczytanych bitow\n",n);
 	if(strcmp(buff,"login")==0){
 		//char * temp;
 		//sprintf(temp,"%d",id);
-		write(klidesk,"1",100);
+		write(klidesk,"4",100);
 					
-		//id_tab[id_tab_pos].id=id;
-		//id++;
-		//id_tab[id_tab_pos].desk=it;
+		//id_tab1[0].id=id;
+		id_tab[0].desk=klidesk;
+		printf("Zapisano klidesk %d, id_tab %d\n",klidesk,id_tab[0].desk);
 		//id_tab_pos++;
+	}
+	else if(strcmp(buff,"login1")==0){
+		write(klidesk,"5",100);
+		
+		id_tab[1].id=id;
+		//id++;
+		id_tab[1].desk=klidesk;
+		//id_tab_pos++;
+		printf("Zapisano klidesk %d, id_tab %d\n",klidesk,id_tab[1].desk);
+			
+	}
+	else if(buff[0] == '4'){
+		write(id_tab[0].desk, &buff, 100);
+		printf("Wyslano  na klidesk id_tab0 %d\n",id_tab[0].desk);
+	}
+	else if(buff[0] == '5'){
+		write(id_tab[1].desk, &buff, 100);
+		printf("Wyslano na klidesk id_tab1 %d\n",id_tab[1].desk);
 	}
 	else if(buff[0] == 'm'){
 		printf("spamer\n");
@@ -71,7 +106,7 @@ close(klidesk);
 exit(EXIT_SUCCESS);
 
 }
-else{close(klidesk);}
+//else{close(klidesk);}
 printf("\n");
 }
 close(desk);
