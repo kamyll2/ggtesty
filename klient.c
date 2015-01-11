@@ -59,20 +59,20 @@ printf("login, m+wiadomosc, exit\n");
 
 char  msg[100];
 while(strcmp(buff,"Login valid")!=0){
-scanf("%s",msg);
-write(desk,msg,100);
-read(desk,buff,100);
-printf("\n\t\t\t\t%s - tako rzecze serwer\n",buff);
-printf("Podaj login:\n");
-scanf("%s",msg);
-write(desk,msg,100);
-read(desk,buff,100);
-printf("\n\t\t\t\t%s - tako rzecze serwer\n",buff);
-printf("Podaj haslo:\n");
-scanf("%s",msg);
-write(desk,msg,100);
-read(desk,buff,100);
-printf("\n\t\t\t\t%s - tako rzecze serwer\n",buff);
+	scanf("%s",msg);
+	write(desk,msg,100);
+	read(desk,buff,100);
+	printf("\n\t\t\t\t%s - tako rzecze serwer\n",buff);
+	printf("Podaj login:\n");
+	scanf("%s",msg);
+	write(desk,msg,100);
+	read(desk,buff,100);
+	printf("\n\t\t\t\t%s - tako rzecze serwer\n",buff);
+	printf("Podaj haslo:\n");
+	scanf("%s",msg);
+	write(desk,msg,100);
+	read(desk,buff,100);
+	printf("\n\t\t\t\t%s - tako rzecze serwer\n",buff);
 }
 if(fork()==0)
 {

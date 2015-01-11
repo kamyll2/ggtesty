@@ -10,4 +10,12 @@ trzeci
 10000
 pszemek
 luj
-
+10001
+przemyslaw
+luj
+10002
+siema
+cotam
+10003
+czwarty
+czwarty
