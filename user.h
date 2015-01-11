@@ -15,5 +15,5 @@ int getUsersFromFile(struct User tab[], int size);
 int isLoginValid(char login[], char password[], struct User tab[],int tabsize);
 bool isLoginAvailable(char login[], struct User tab[], int tabsize);
 bool registerNewUser(char login[], char password[],struct User tab[], int tabsize, int lastintab);
-
+bool isIdExist(int id, struct User tab[], int size);
 #endif

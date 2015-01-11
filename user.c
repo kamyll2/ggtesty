@@ -58,3 +58,13 @@ bool registerNewUser(char login[], char password[], struct User tab[], int tabsi
 	fclose(fp);
 	return true;
 }
+
+bool isIdExist(int id, struct User tab[], int size){
+	int i;
+	for(i=0;i<size;i++){
+		if(tab[i].id==id){
+			return true;
+		}
+	}
+	return false;
+}
