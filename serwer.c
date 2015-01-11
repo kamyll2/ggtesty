@@ -85,6 +85,12 @@ while(1){
 			/*id_tab[id_tab_pos[0]].desk=klidesk;
 			id_tab[id_tab_pos[0]].id=kliid;
 			id_tab_pos[0]++;*/
+			char msg[100];
+			int x= getMessage(kliid,msg);
+			while(x==1){
+				write(klidesk,msg,100);
+				x=getMessage(kliid,msg);
+			}
 			klipoz=insertToTable(kliid,klidesk,activetab,20);
 			wysactive(activetab,20);
 		   printf("Zapisano klidesk %d, id_tab %d\n",klidesk,activetab[klipoz].desk);
@@ -105,6 +111,7 @@ while(1){
 				write(klidesk, "nie ma takiego usera",100);
 			}
 			else{
+				saveMessage(buff);
 				write(klidesk, "niezalogowany",100);
 			}
 		}
@@ -133,7 +140,8 @@ while(1){
 		//exit(EXIT_SUCCESS);	
 	}
 	else{
-		write(klidesk, "Hello World\n", 13);}
+		write(klidesk, "nieznany wzorzec", 100);
+	}
 	}
 close(klidesk);
 exit(EXIT_SUCCESS);

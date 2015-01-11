@@ -16,4 +16,7 @@ int isLoginValid(char login[], char password[], struct User tab[],int tabsize);
 bool isLoginAvailable(char login[], struct User tab[], int tabsize);
 bool registerNewUser(char login[], char password[],struct User tab[], int tabsize, int lastintab);
 bool isIdExist(int id, struct User tab[], int size);
+void remLine(int numline);
+void saveMessage(char msg[]);
+int getMessage(int id, char msg[]);
 #endif

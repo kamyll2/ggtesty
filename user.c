@@ -1,4 +1,5 @@
 #include "user.h"
+#define _GNU_SOURCE
 
 int getUsersFromFile(struct User tab[], int size){
 	FILE * fp;
@@ -67,4 +68,57 @@ bool isIdExist(int id, struct User tab[], int size){
 		}
 	}
 	return false;
+}
+void remLine(int numline){
+	//remLine(1);
+	FILE * fp;
+	FILE * rep;
+	fp = fopen("messages.txt","r");
+	rep = fopen("replica.txt","w");
+	char * wsk;
+	char ciag[100];
+	//wsk = *ciag;
+	size_t a=0;
+	int i;
+	for(i=0;1;i++){
+		if(feof(fp)!=0){break;}
+		int x = getline(&wsk,&a,fp);
+		if(x==-1){break;}
+		strcpy(ciag, wsk);
+		//printf("%s",ciag);
+		if(i!=numline){fprintf(rep,"%s",ciag);}
+	}
+	fclose(fp);
+	fclose(rep);
+	rename("replica.txt","messages.txt");
+	//*/
+}
+
+void saveMessage(char msg[]){
+	FILE *fp;
+	fp = fopen("messages.txt","a");
+	fprintf(fp,"%s\n",msg);
+	fclose(fp);
+}
+
+int getMessage(int id, char msg[]){
+	FILE *fp;
+	fp = fopen("messages.txt","r");
+	int i;
+	size_t a=0;
+	char * wsk;
+	int res=-1;
+	for(i=0;1;i++){
+		if(feof(fp)!=0){break;}
+		int x = getline(&wsk,&a,fp);
+		if(x==-1){break;}
+		if((wsk[0]-'0')==id){
+			strcpy(msg,wsk);
+			res=1;
+			break;
+		}
+	}
+	fclose(fp);
+	if(res==1){remLine(i);}
+	return res;
 }
