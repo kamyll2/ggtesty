@@ -1,7 +1,6 @@
 #include "libs.h"
 #include "user.h"
 #include "active.h"
-#include <pthread.h>
 /*
 struct desk_id{
 int desk;
@@ -10,18 +9,60 @@ bool active;
 };
 
 */
+void childend(int signo){
+wait(NULL);
+}
+
+main(int argc, char* argv[])
+{
+const int shmkey = 4326;
+int shmid = shmget(shmkey, 20*sizeof(struct Active), IPC_CREAT|0600);
 struct Active * activetab;
+activetab = (struct Active *)shmat(shmid,NULL,0);
+
+int i;
+for (i=0;i<20;i++){
+activetab[i].id = -1; activetab[i].desk = -1; activetab[i].isLogged = false;
+}
+int shmid2 = shmget(5326, 20*sizeof(struct User),IPC_CREAT|0600);
 struct User * usertab;
+usertab = (struct User *)shmat(shmid2,NULL,0);
+
+int shmid3 = shmget(5327, sizeof(int), IPC_CREAT|0600);
 int * maxuser;
-struct cln{
-int cfd;
-struct sockaddr_in caddr;
-};
+maxuser = (int *)shmat(shmid3,NULL,0);
+maxuser[0] = getUsersFromFile(usertab,20);
 
-void *  watek(void * arg){
+int on=1;
+int desk=socket(PF_INET,SOCK_STREAM,0);
+setsockopt(desk,SOL_SOCKET,SO_REUSEADDR,(char*)&on,sizeof(on));
 
-struct cln* c = (struct cln*)arg;
-	int klidesk = c->cfd;
+if(desk<0){printf("socket error\n");}
+struct sockaddr_in adres;
+struct hostent* addrent;
+
+signal(SIGCHLD, childend);
+
+//addrent = gethostbyname(argv[1]);
+
+adres.sin_family=PF_INET;
+adres.sin_port=htons(1234); //port
+//adres.sin_port=htons(atoi(argv[2]));
+adres.sin_addr.s_addr=INADDR_ANY; //ip
+//memcpy(&adres.sin_addr.s_addr, addrent->h_addr, addrent->h_length);
+
+if(bind(desk,(struct sockaddr*)&adres,sizeof(adres))<0){
+printf("bind error\n");}
+
+listen(desk, 10);
+
+struct sockaddr_in klient;
+int rozm=sizeof(struct sockaddr_in);
+while(1){
+int klidesk;
+klidesk=accept(desk,(struct sockaddr*)&klient,&rozm);
+if(fork()==0){
+	close(desk);
 	char buff[100];
 	int kliid,klipoz;
 while(1){
@@ -119,71 +160,10 @@ while(1){
 		write(klidesk, "nieznany wzorzec", 100);
 	}
 	}
+close(klidesk);
+exit(EXIT_SUCCESS);
+
 }
-
-void childend(int signo){
-wait(NULL);
-}
-
-main(int argc, char* argv[])
-{
-pthread_t tid;
-socklen_t slt;
-
-const int shmkey = 4326;
-int shmid = shmget(shmkey, 20*sizeof(struct Active), IPC_CREAT|0600);
-
-activetab = (struct Active *)shmat(shmid,NULL,0);
-
-int i;
-for (i=0;i<20;i++){
-activetab[i].id = -1; activetab[i].desk = -1; activetab[i].isLogged = false;
-}
-int shmid2 = shmget(5326, 20*sizeof(struct User),IPC_CREAT|0600);
-
-usertab = (struct User *)shmat(shmid2,NULL,0);
-
-int shmid3 = shmget(5327, sizeof(int), IPC_CREAT|0600);
-
-maxuser = (int *)shmat(shmid3,NULL,0);
-maxuser[0] = getUsersFromFile(usertab,20);
-
-int on=1;
-int desk=socket(PF_INET,SOCK_STREAM,0);
-setsockopt(desk,SOL_SOCKET,SO_REUSEADDR,(char*)&on,sizeof(on));
-
-if(desk<0){printf("socket error\n");}
-struct sockaddr_in adres;
-struct hostent* addrent;
-
-signal(SIGCHLD, childend);
-
-//addrent = gethostbyname(argv[1]);
-
-adres.sin_family=PF_INET;
-adres.sin_port=htons(1234); //port
-//adres.sin_port=htons(atoi(argv[2]));
-adres.sin_addr.s_addr=INADDR_ANY; //ip
-//memcpy(&adres.sin_addr.s_addr, addrent->h_addr, addrent->h_length);
-
-if(bind(desk,(struct sockaddr*)&adres,sizeof(adres))<0){
-printf("bind error\n");}
-
-listen(desk, 10);
-
-struct sockaddr_in klient;
-int rozm=sizeof(struct sockaddr_in);
-while(1){
-//int klidesk;
-
-struct cln* c = malloc(sizeof(struct cln));
-slt = sizeof(c->caddr);
-
-c->cfd=accept(desk,(struct sockaddr*)&klient,&rozm);
-
-pthread_create(&tid, NULL, watek, c);
-pthread_detach(tid);
-
 //else{close(klidesk);}
 printf("\n");
 }
