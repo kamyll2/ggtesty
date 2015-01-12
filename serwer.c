@@ -10,9 +10,13 @@ bool active;
 };
 
 */
-struct Active * activetab;
-struct User * usertab;
-int * maxuser;
+#define ACTIVESIZE  20
+#define USERSIZE  20
+
+struct Active activetab[ACTIVESIZE];
+struct User  usertab[USERSIZE];
+int maxuser;
+
 struct cln{
 int cfd;
 struct sockaddr_in caddr;
@@ -41,7 +45,7 @@ while(1){
 		read(klidesk,&password,100);
 		//write(klidesk,"mam haslo",100);
 		printf("%s\t%s\n",login,password);
-		kliid = isLoginValid(login,password,usertab,maxuser[0]);
+		kliid = isLoginValid(login,password,usertab,maxuser);
 		if(kliid==-1){
 			write(klidesk,"Login invalid",100);
 		}
@@ -56,8 +60,8 @@ while(1){
 				write(klidesk,msg,100);
 				x=getMessage(kliid,msg);
 			}
-			klipoz=insertToTable(kliid,klidesk,activetab,20);
-			wysactive(activetab,20);
+			klipoz=insertToTable(kliid,klidesk,activetab,ACTIVESIZE);
+			wysactive(activetab,ACTIVESIZE);
 		   printf("Zapisano klidesk %d, id_tab %d\n",klidesk,activetab[klipoz].desk);
 		}
 	}
@@ -70,20 +74,20 @@ while(1){
 		read(klidesk,&password,100);
 		//write(klidesk,"mam haslo",100);
 		printf("%s\t%s\n",login,password);	
-		if(!isLoginAvailable(login,usertab,maxuser[0])){
+		if(!isLoginAvailable(login,usertab,maxuser)){
 			write(klidesk, "Login already in use",100);
 		}
 		else{
-			registerNewUser(login, password, usertab, 20, maxuser[0]);
-			maxuser[0]++;
+			registerNewUser(login, password, usertab, USERSIZE, maxuser);
+			maxuser++;
 			write(klidesk, "Register success! You can log in now", 100);
 		}	
 	}
 	else if((buff[0] - '0')>0 && (buff[0] - '0')<10){
 		int id=buff[0] - '0';
-		int tempdesk = getDesk(id,activetab,20);
+		int tempdesk = getDesk(id,activetab,ACTIVESIZE);
 		if(tempdesk==-1){
-			if(!isIdExist(id,usertab,maxuser[0])){
+			if(!isIdExist(id,usertab,maxuser)){
 				write(klidesk, "nie ma takiego usera",100);
 			}
 			else{
@@ -109,8 +113,8 @@ while(1){
 	else if(strcmp(buff, "exit")==0){
 		write(klidesk, "exit",100);
 		printf("bye bye\n");
-		logOff(kliid,activetab,20);
-		wysactive(activetab,20);
+		logOff(kliid,activetab,ACTIVESIZE);
+		wysactive(activetab,ACTIVESIZE);
 		break;
 		//close(klidesk);
 		//exit(EXIT_SUCCESS);	
@@ -130,23 +134,22 @@ main(int argc, char* argv[])
 pthread_t tid;
 socklen_t slt;
 
-const int shmkey = 4326;
+/*const int shmkey = 4326;
 int shmid = shmget(shmkey, 20*sizeof(struct Active), IPC_CREAT|0600);
 
 activetab = (struct Active *)shmat(shmid,NULL,0);
-
+*/
 int i;
-for (i=0;i<20;i++){
+for (i=0;i<ACTIVESIZE;i++){
 activetab[i].id = -1; activetab[i].desk = -1; activetab[i].isLogged = false;
 }
+/*
 int shmid2 = shmget(5326, 20*sizeof(struct User),IPC_CREAT|0600);
-
 usertab = (struct User *)shmat(shmid2,NULL,0);
-
-int shmid3 = shmget(5327, sizeof(int), IPC_CREAT|0600);
-
-maxuser = (int *)shmat(shmid3,NULL,0);
-maxuser[0] = getUsersFromFile(usertab,20);
+*/
+/*int shmid3 = shmget(5327, sizeof(int), IPC_CREAT|0600);
+maxuser = (int *)shmat(shmid3,NULL,0);*/
+maxuser = getUsersFromFile(usertab,USERSIZE);
 
 int on=1;
 int desk=socket(PF_INET,SOCK_STREAM,0);

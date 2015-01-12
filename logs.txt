@@ -22,3 +22,6 @@ siodemka
 9
 dziewiatka
 dziewiatka
+10
+pszemek
+luj
