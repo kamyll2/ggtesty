@@ -13,5 +13,6 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 #endif

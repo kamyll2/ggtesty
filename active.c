@@ -47,5 +47,6 @@ int isNowLogged(int id, struct Active tab[], int size){
 
 bool logOff(int id,struct Active tab[], int size){
 	tab[isNowLogged(id,tab,size)].isLogged=false;
+	return true;
 }
 
