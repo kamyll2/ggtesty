@@ -1,4 +1,5 @@
 #include "user.h"
+#include "parser.h"
 #define _GNU_SOURCE
 
 int getUsersFromFile(struct User tab[], int size){
@@ -112,7 +113,10 @@ int getMessage(int id, char msg[]){
 		if(feof(fp)!=0){break;}
 		int x = getline(&wsk,&a,fp);
 		if(x==-1){break;}
-		if((wsk[0]-'0')==id){
+		char buff[10];
+		getMessageSection(wsk,buff,"<to>");
+		
+		if(atoi(buff)==id){
 			strcpy(msg,wsk);
 			res=1;
 			break;

@@ -1,6 +1,7 @@
 #include "libs.h"
 #include "user.h"
 #include "active.h"
+#include "parser.h"
 #include <pthread.h>
 
 #define ACTIVESIZE  20
@@ -9,6 +10,8 @@
 struct Active activetab[ACTIVESIZE];
 struct User  usertab[USERSIZE];
 int maxuser;
+
+Message serMes;
 
 struct cln{
 	int cfd;
@@ -21,29 +24,31 @@ void *  watek(void * arg){
 	int klidesk = c->cfd;
 	char buff[100];
 	int kliid,klipoz;
+	Message kliMes;
 	while(1){
-		int n = read(klidesk,&buff,100);
+		int n = read(klidesk,buff,100);
+		if(n<1){printf("read error\n");return 0;}
 		//write(1, &buff, n);
 		printf("%s", buff);
-	
+		kliMes = parseCharToMessage(buff);
 		printf("\n%d odczytanych bitow\n",n);
-		if(strcmp(buff,"login")==0){
+		if(kliMes.type==1){
 			//char * temp;
 			//sprintf(temp,"%d",id);
-			write(klidesk,"dawaj cieciu",100);
+			/*write(klidesk,"dawaj cieciu",100);
 			char login[100];
 			read(klidesk,&login,100);
 			write(klidesk,"mam login",100);
 			char password[100];
 			read(klidesk,&password,100);
 			//write(klidesk,"mam haslo",100);
-			printf("%s\t%s\n",login,password);
-			kliid = isLoginValid(login,password,usertab,maxuser);
+			printf("%s\t%s\n",login,password);*/
+			kliid = isLoginValid(kliMes.login,kliMes.password,usertab,maxuser);
 			if(kliid==-1){
-				write(klidesk,"Login invalid",100);
+				write(klidesk,"<type>21<body>Invalid Login<end>",100);
 			}
 			else{
-				write(klidesk,"Login valid",100);			
+				write(klidesk,"<type>11<body>Login valid<end>",100);			
 				/*id_tab[id_tab_pos[0]].desk=klidesk;
 				id_tab[id_tab_pos[0]].id=kliid;
 				id_tab_pos[0]++;*/
@@ -58,49 +63,49 @@ void *  watek(void * arg){
 		   printf("Zapisano klidesk %d, id_tab %d\n",klidesk,activetab[klipoz].desk);
 			}
 		}
-		else if(strcmp(buff,"register")==0){
-			write(klidesk,"dawaj cieciu",100);
+		else if(kliMes.type==2){
+			/*write(klidesk,"dawaj cieciu",100);
 			char login[100];
 			read(klidesk,&login,100);
 			write(klidesk,"mam login",100);
 			char password[100];
 			read(klidesk,&password,100);
 			//write(klidesk,"mam haslo",100);
-			printf("%s\t%s\n",login,password);	
-			if(!isLoginAvailable(login,usertab,maxuser)){
-				write(klidesk, "Login already in use",100);
+			printf("%s\t%s\n",login,password);*/	
+			if(!isLoginAvailable(kliMes.login,usertab,maxuser)){
+				write(klidesk, "<type>4<body>Login already in use<end>",100);
 			}
 			else{
-				registerNewUser(login, password, usertab, USERSIZE, maxuser);
+				registerNewUser(kliMes.login, kliMes.password, usertab, USERSIZE, maxuser);
 				maxuser++;
-				write(klidesk, "Register success! You can log in now", 100);
+				write(klidesk, "<type>4<body>Registration success!<end>", 100);
 			}	
 		}
-		else if((buff[0] - '0')>0 && (buff[0] - '0')<10){
+		else if(kliMes.type==0){
 			int id=buff[0] - '0';
-			int tempdesk = getDesk(id,activetab,ACTIVESIZE);
+			int tempdesk = getDesk(kliMes.to,activetab,ACTIVESIZE);
 			if(tempdesk==-1){
-				if(!isIdExist(id,usertab,maxuser)){
-					write(klidesk, "nie ma takiego usera",100);
+				if(!isIdExist(kliMes.to,usertab,maxuser)){
+					write(klidesk, "<type>6<body>Not found user with this ID<end>",100);
 				}
 				else{
 					saveMessage(buff);
-					write(klidesk, "niezalogowany",100);
+					//write(klidesk, "niezalogowany",100);
 				}
 			}
 			else{
-				write(klidesk, "wyslano",100);
+				//write(klidesk, "wyslano",100);
 				write(tempdesk,buff,100);
 			}
 			//write(id_tab[0].desk, &buff, 100);
 			//printf("Wyslano  na klidesk id_tab0 %d\n",id_tab[0].desk);
 		}
-		else if(buff[0] == 'm'){
+		/*else if(buff[0] == 'm'){
 			printf("spamer\n");
 			write(klidesk, "nie spamuj", 11);
-		}
-		else if(strcmp(buff, "exit")==0){
-			write(klidesk, "exit",100);
+		}*/
+		else if(kliMes.type==7){
+			write(klidesk, "<type>8<body>Logout success!<end>",100);
 			printf("bye bye\n");
 			logOff(kliid,activetab,ACTIVESIZE);
 			wysactive(activetab,ACTIVESIZE);
@@ -109,9 +114,11 @@ void *  watek(void * arg){
 		//exit(EXIT_SUCCESS);	
 		}
 	else{
-		write(klidesk, "nieznany wzorzec", 100);
+		write(klidesk, "<type>9<body>Something went wrong<end>", 100);
 	}
 }
+return 0;
+close(klidesk);
 }
 
 int main(int argc, char* argv[])

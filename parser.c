@@ -87,7 +87,7 @@ void parseMessageToChar(Message m, char buff[]) {
 	
 	char from [INDEX_SIZE];
 	char to [INDEX_SIZE];
-	char type[1];
+	char type[2];
 	
 	
 	if(m.type==0){
